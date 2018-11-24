@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using PaymentServiceProvider.Indexing;
 
 namespace PaymentServiceProvider
 {
@@ -24,6 +25,9 @@ namespace PaymentServiceProvider
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+
+            //add indexing
+            services.AddSingleton(new EsClient());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
