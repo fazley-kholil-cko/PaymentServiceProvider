@@ -8,6 +8,8 @@ namespace PaymentServiceProvider.Models
 
         public string Environment { get; set; }
 
+        public string Machine => System.Environment.MachineName;
+
         public string Version { get; set; }
 
         public bool IsSuccess { get; set; }
