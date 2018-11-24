@@ -40,6 +40,10 @@ node_modules
 *.orig
 web.local.config
 
+../.vs
+../.DS_Store
+.vs
+
 
 # Cake Build Related
 .idea
