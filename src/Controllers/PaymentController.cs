@@ -41,9 +41,6 @@ namespace PaymentServiceProvider.Controllers
                 var httpClient = new HttpClient();
                 var response = await httpClient.GetAsync(esUrl);
 
-                //will throw an exception if not successful
-                response.EnsureSuccessStatusCode();
-
                 string content = await response.Content.ReadAsStringAsync();
                 return await Task.Run(() => content);
             }
