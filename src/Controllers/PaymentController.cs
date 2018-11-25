@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -30,6 +31,29 @@ namespace PaymentServiceProvider.Controllers
             _esClient = eSClient;
         }
 
+        [Route("es")]
+        public async Task<string> EsHealth()
+        {
+            try
+            {
+                var esUrl = Environment.GetEnvironmentVariable("ELASTICSEARCH_URL");
+
+                var httpClient = new HttpClient();
+                var response = await httpClient.GetAsync(esUrl);
+
+                //will throw an exception if not successful
+                response.EnsureSuccessStatusCode();
+
+                string content = await response.Content.ReadAsStringAsync();
+                return await Task.Run(() => content);
+            }
+            catch (Exception ex)
+            {
+
+                return $"{ex.Message}, stk:{ex.StackTrace}";
+            }
+
+        }
 
         [Route("authorise")]
         public async Task<IActionResult> AuthorisePayment()
