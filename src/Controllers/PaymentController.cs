@@ -47,10 +47,61 @@ namespace PaymentServiceProvider.Controllers
             catch (Exception ex)
             {
 
-                return $"{ex.Message}, stk:{ex.StackTrace}";
+                return $"{ex.Message}, inner:{ex.InnerException} stk:{ex.StackTrace}";
             }
 
         }
+
+        [Route("es/ing")]
+        public async Task<string> EsHealthIngress()
+        {
+            try
+            {
+                var esUrl = Environment.GetEnvironmentVariable("ELASTICSEARCH_URL");
+                var l5d = Environment.GetEnvironmentVariable("L5D_INGRESS_LB");
+
+
+
+                var httpClient = new HttpClient();
+                httpClient.DefaultRequestHeaders.Add("Host", "Host: 139.59.177.30:9200");
+                var response = await httpClient.GetAsync(l5d);
+
+                string content = await response.Content.ReadAsStringAsync();
+                return await Task.Run(() => content);
+            }
+            catch (Exception ex)
+            {
+
+                return $"{ex.Message}, inner:{ex.InnerException} stk:{ex.StackTrace}";
+            }
+
+        }
+
+        [Route("es/google")]
+        public async Task<string> EsHealthGoogles([FromQuery] string host)
+        {
+            try
+            {
+                var esUrl = Environment.GetEnvironmentVariable("ELASTICSEARCH_URL");
+                var l5d = Environment.GetEnvironmentVariable("L5D_INGRESS_LB");
+
+
+
+                var httpClient = new HttpClient();
+                httpClient.DefaultRequestHeaders.Add("Host", $"Host: {host}");
+                var response = await httpClient.GetAsync(l5d);
+
+                string content = await response.Content.ReadAsStringAsync();
+                return await Task.Run(() => content);
+            }
+            catch (Exception ex)
+            {
+
+                return $"{ex.Message}, inner:{ex.InnerException} stk:{ex.StackTrace}";
+            }
+
+        }
+
 
         [Route("authorise")]
         public async Task<IActionResult> AuthorisePayment()
