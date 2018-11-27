@@ -1,0 +1,11 @@
+\\Mac\Home\Documents\lunch-n-learn\PaymentServiceProvider\Indexing\bin\Debug\netcoreapp2.0\Indexing.deps.json
+\\Mac\Home\Documents\lunch-n-learn\PaymentServiceProvider\Indexing\bin\Debug\netcoreapp2.0\Indexing.runtimeconfig.json
+\\Mac\Home\Documents\lunch-n-learn\PaymentServiceProvider\Indexing\bin\Debug\netcoreapp2.0\Indexing.runtimeconfig.dev.json
+\\Mac\Home\Documents\lunch-n-learn\PaymentServiceProvider\Indexing\bin\Debug\netcoreapp2.0\Indexing.dll
+\\Mac\Home\Documents\lunch-n-learn\PaymentServiceProvider\Indexing\obj\Debug\netcoreapp2.0\Indexing.csprojAssemblyReference.cache
+\\Mac\Home\Documents\lunch-n-learn\PaymentServiceProvider\Indexing\obj\Debug\netcoreapp2.0\Indexing.csproj.CoreCompileInputs.cache
+\\Mac\Home\Documents\lunch-n-learn\PaymentServiceProvider\Indexing\obj\Debug\netcoreapp2.0\Indexing.AssemblyInfoInputs.cache
+\\Mac\Home\Documents\lunch-n-learn\PaymentServiceProvider\Indexing\obj\Debug\netcoreapp2.0\Indexing.AssemblyInfo.cs
+\\Mac\Home\Documents\lunch-n-learn\PaymentServiceProvider\Indexing\bin\Debug\netcoreapp2.0\Indexing.pdb
+\\Mac\Home\Documents\lunch-n-learn\PaymentServiceProvider\Indexing\obj\Debug\netcoreapp2.0\Indexing.dll
+\\Mac\Home\Documents\lunch-n-learn\PaymentServiceProvider\Indexing\obj\Debug\netcoreapp2.0\Indexing.pdb

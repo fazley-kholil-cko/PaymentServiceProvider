@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using PaymentServiceProvider.Indexing;
 using PaymentServiceProvider.Models;
+using Refit;
 
 namespace PaymentServiceProvider.Controllers
 {
@@ -24,11 +25,16 @@ namespace PaymentServiceProvider.Controllers
         public static decimal SuccessHitCount { get; set; } = 1;
         public static decimal FailureHitCount { get; set; } = 1;
 
+        private IIndexingService _indexingService = null;
+
         private EsClient _esClient;
 
         public PaymentController(EsClient eSClient)
         {
             _esClient = eSClient;
+
+            var esUrl = Environment.GetEnvironmentVariable("ELASTICSEARCH_URL");
+            _indexingService = RestService.For<IIndexingService>(esUrl);//http://localhost:52708
         }
 
         [Route("es")]
@@ -52,54 +58,51 @@ namespace PaymentServiceProvider.Controllers
 
         }
 
-        [Route("es/ing")]
-        public async Task<string> EsHealthIngress()
+        [Route("authorisev2")]
+        public async Task<IActionResult> AuthorisePaymentV2()
         {
+            var startTime = Environment.TickCount;
+
             try
             {
-                var esUrl = Environment.GetEnvironmentVariable("ELASTICSEARCH_URL");
-                var l5d = Environment.GetEnvironmentVariable("L5D_INGRESS_LB");
+                //similate error 500 out of a total count of transaction
+                if (ErrorRate > 0)
+                {
+                    if (SuccessHitCount > SuccessRate)
+                    {
+                        if (FailureHitCount == FailureRate)
+                        {
+                            SuccessHitCount = 1; //reset 
+                            FailureHitCount = 1; //reset
+                        }
 
 
+                        FailureHitCount++;
 
-                var httpClient = new HttpClient();
-                httpClient.DefaultRequestHeaders.Add("Host", "Host: 139.59.177.30:9200");
-                var response = await httpClient.GetAsync(l5d);
+                        //simulate server is down 
+                        throw new Exception("Server not available");
+                    }
+                }
 
-                string content = await response.Content.ReadAsStringAsync();
-                return await Task.Run(() => content);
+                //simulate call to external payment processor
+                var response = await AuthoriseAsync();
+
+                //save the transaction to es
+                await LogAsyncToExternal(response);
+
+                response.Metric.TotalExecution = Environment.TickCount - startTime;
+                response.Metric.ConsecutiveHitCount = SuccessHitCount;
+                SuccessHitCount++;
+
+                return await Task.Run(() => Ok(response));
             }
             catch (Exception ex)
             {
+                //log the error
+                await LogAsyncToExternal(ex, startTime);
 
-                return $"{ex.Message}, inner:{ex.InnerException} stk:{ex.StackTrace}";
+                throw;
             }
-
-        }
-
-        [Route("es/google")]
-        public async Task<string> EsHealthGoogles([FromQuery] string host)
-        {
-            try
-            {
-                var esUrl = Environment.GetEnvironmentVariable("ELASTICSEARCH_URL");
-                var l5d = Environment.GetEnvironmentVariable("L5D_INGRESS_LB");
-
-
-
-                var httpClient = new HttpClient();
-                httpClient.DefaultRequestHeaders.Add("Host", $"Host: {host}");
-                var response = await httpClient.GetAsync(l5d);
-
-                string content = await response.Content.ReadAsStringAsync();
-                return await Task.Run(() => content);
-            }
-            catch (Exception ex)
-            {
-
-                return $"{ex.Message}, inner:{ex.InnerException} stk:{ex.StackTrace}";
-            }
-
         }
 
 
@@ -174,7 +177,7 @@ namespace PaymentServiceProvider.Controllers
                     Environment = ApplicationEnvironment,
                     Version = Version,
                     ResponseCode = "Error",
-                    IsSuccess = true,
+                    IsSuccess = false,
                     TransactionDate = DateTime.Now,
                     Metric = new Metric
                     {
@@ -186,9 +189,29 @@ namespace PaymentServiceProvider.Controllers
 
                 _esClient.IndexAsync(errorTransactionLog);
             });
+        }
 
+        private Task LogAsyncToExternal(Exception ex, int startTime)
+        {
+            return Task.Run(() =>
+            {
+                var errorTransactionLog = new Transaction
+                {
+                    Environment = ApplicationEnvironment,
+                    Version = Version,
+                    ResponseCode = "Error",
+                    IsSuccess = false,
+                    TransactionDate = DateTime.Now,
+                    Metric = new Metric
+                    {
+                        ConsecutiveHitCount = FailureHitCount,
+                        TotalExecution = Environment.TickCount - startTime
+                    },
+                    Exception = ex
+                };
 
-
+                _indexingService.Index(errorTransactionLog);
+            });
         }
 
         private Task LogAsync(Transaction transaction)
@@ -197,6 +220,15 @@ namespace PaymentServiceProvider.Controllers
             {
                 _esClient.IndexAsync(transaction);
             });
+        }
+
+        private Task LogAsyncToExternal(Transaction transaction)
+        {
+            return Task.Run(() =>
+            {
+                _indexingService.Index(transaction);
+            });
+          
         }
 
     }
