@@ -19,5 +19,7 @@ namespace PaymentServiceProvider.Models
         public string ResponseCode { get; set; }
 
         public DateTime TransactionDate { get; set; }
+
+        public object EsResponse { get; set; }
     }
 }

@@ -44,8 +44,8 @@ namespace Indexing.Controllers
         {
             try
             {
-                await LogAsync(t);
-                return true;
+                var res = await LogAsync(t);
+                return res;
             }
             catch (Exception ex)
             {
@@ -55,12 +55,10 @@ namespace Indexing.Controllers
 
         }
 
-        private Task LogAsync(Transaction transaction)
+        private async Task<object> LogAsync(Transaction transaction)
         {
-            return Task.Run(() =>
-            {
-                _esClient.IndexAsync(transaction);
-            });
+            var res = await _esClient.IndexAsync(transaction);
+            return res;
         }
     }
 }

@@ -104,7 +104,8 @@ namespace PaymentServiceProvider.Controllers
                 var response = await AuthoriseAsync();
 
                 //save the transaction to es
-                await LogAsyncToExternal(response);
+                var esResponse = await LogAsyncToExternal(response);
+                response.EsResponse = esResponse;
 
                 response.Metric.TotalExecution = Environment.TickCount - startTime;
                 response.Metric.ConsecutiveHitCount = SuccessHitCount;
@@ -238,13 +239,10 @@ namespace PaymentServiceProvider.Controllers
             });
         }
 
-        private Task LogAsyncToExternal(Transaction transaction)
+        private async Task<object> LogAsyncToExternal(Transaction transaction)
         {
-            return Task.Run(() =>
-            {
-                _indexingService.Index(transaction);
-            });
-          
+            var res = await _indexingService.Index(transaction);
+            return res;
         }
 
     }

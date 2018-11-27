@@ -1,5 +1,6 @@
 ﻿using Nest;
 using System;
+using System.Threading.Tasks;
 
 namespace Indexing
 {
@@ -18,10 +19,16 @@ namespace Indexing
             }
         }
 
-        public void IndexAsync(object obj)
+        public async Task<object> IndexAsync(object obj)
         {
             if (bool.TryParse(Environment.GetEnvironmentVariable("USE_INDEXING"), out var useEs) && useEs)
-                _client.IndexDocumentAsync(obj);
+            {
+                var res = await _client.IndexDocumentAsync(obj);
+                return res;
+            }
+
+            return false;
+               
         }
 
     }
