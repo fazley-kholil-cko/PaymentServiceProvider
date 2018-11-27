@@ -21,10 +21,13 @@ namespace Indexing
 
         public async Task<object> IndexAsync(object obj)
         {
-          
+            if (bool.TryParse(Environment.GetEnvironmentVariable("USE_INDEXING"), out var useEs) && useEs)
+            {
                 var res = await _client.IndexDocumentAsync(obj);
                 return res;
-            
+            }
+
+            return false;
                
         }
 
