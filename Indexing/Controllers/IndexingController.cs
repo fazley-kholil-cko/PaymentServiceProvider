@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,10 +18,29 @@ namespace Indexing.Controllers
             _esClient = eSClient;
         }
 
+        [Route("health")]
+        public async Task<string> EsHealth()
+        {
+            try
+            {
+                var esUrl = Environment.GetEnvironmentVariable("ELASTICSEARCH_URL");
+
+                var httpClient = new HttpClient();
+                var response = await httpClient.GetAsync(esUrl);
+
+                string content = await response.Content.ReadAsStringAsync();
+                return await Task.Run(() => content);
+            }
+            catch (Exception ex)
+            {
+
+                return $"{ex.Message}, inner:{ex.InnerException} stk:{ex.StackTrace}";
+            }
+        }
 
         [Route("transaction")]
         [HttpPost]
-        public async Task<object> EsHealth([FromBody] Transaction t)
+        public async Task<object> Authorise([FromBody] Transaction t)
         {
             try
             {

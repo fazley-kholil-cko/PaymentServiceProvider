@@ -8,5 +8,8 @@ namespace PaymentServiceProvider.Indexing
     {
         [Post("/api/indexing/transaction")]
         Task<object> Index(Transaction t);
+
+        [Get("/api/indexing/health")]
+        Task<string> Health();
     }
 }
