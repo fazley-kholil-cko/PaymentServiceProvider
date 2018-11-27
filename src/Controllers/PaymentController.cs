@@ -58,6 +58,22 @@ namespace PaymentServiceProvider.Controllers
 
         }
 
+        [Route("esv2")]
+        public async Task<string> EsHealthV2()
+        {
+            try
+            {
+                var res = await _indexingService.Health();
+                return await Task.Run(() => res);
+            }
+            catch (Exception ex)
+            {
+
+                return $"{ex.Message}, inner:{ex.InnerException} stk:{ex.StackTrace}";
+            }
+
+        }
+
         [Route("authorisev2")]
         public async Task<IActionResult> AuthorisePaymentV2()
         {
